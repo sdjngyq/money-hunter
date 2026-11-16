@@ -1,0 +1,24 @@
+services:
+  money-hunter:
+    build: .
+    image: money-hunter:latest
+    container_name: money-hunter
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # GitHub Token（强烈建议配置，否则搜索接口约 10 次/分钟，严重限流）
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      # Web 访问口令（可选；不设置则不需要登录）
+      GHMH_WEB_USER: ${GHMH_WEB_USER:-}
+      GHMH_WEB_PASSWORD: ${GHMH_WEB_PASSWORD:-}
+    volumes:
+      - ./data:/app/data
+      # 如宿主机已有 config.yaml，取消下一行注释挂载进容器：
+      # - ./config.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s

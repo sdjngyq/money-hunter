@@ -1,0 +1,5 @@
+requests>=2.31
+Flask>=3.0
+rich>=13.7
+PyYAML>=6.0
+waitress>=3.0

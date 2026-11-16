@@ -1,0 +1,153 @@
+# ============================================================
+# GitHub 赚钱项目雷达 · 配置文件
+# ------------------------------------------------------------
+# 首次运行会自动把本文件复制为 config.yaml（已存在则不覆盖）。
+# token 推荐放在环境变量 GITHUB_TOKEN 中，优先级高于本文件。
+# 不填 token 也能跑，但 GitHub 搜索接口限流更严格（约 10 次/分钟）。
+# ============================================================
+
+# GitHub Personal Access Token（只需 public_repo 或完全无权限的经典 token）
+# 生成地址: https://github.com/settings/tokens
+token: ""
+
+# 数据库位置（相对路径以项目根目录为准）
+db_path: data/money_hunter.db
+
+# 采集时忽略 star 少于该值的仓库
+min_stars: 50
+
+# 每个搜索条件最多抓取多少个仓库（GitHub 单页上限 100）
+per_query: 50
+
+# 两次搜索请求之间的间隔（秒）。null 表示自动：
+#   无 token -> 7 秒；有 token -> 2 秒
+request_delay: null
+
+# watch 模式下默认的采集间隔（分钟）
+interval_minutes: 360
+
+# “增长最快”榜单默认统计窗口（天）
+growth_window_days: 7
+
+# “最新高潜项目”榜单默认统计“创建于最近 N 天内”的项目
+new_within_days: 60
+
+# 命令行与网页默认展示条数
+top_limit: 50
+
+# ------------------------------------------------------------
+# 存量仓库刷新（保证“增长”计算准确）
+# ------------------------------------------------------------
+# 每轮采集结束后，对数据库里已有仓库批量刷新 Star / Fork。
+# 有 token 时走 GraphQL（一次 100 个），无 token 时降级为 REST（核心额度有限）。
+refresh_existing: true
+refresh_limit: 2000           # 有 token 时每轮最多刷新多少个仓库
+refresh_limit_no_token: 30    # 无 token 时每轮最多刷新多少个（REST 60 次/小时）
+refresh_batch_size: 100       # GraphQL 每批查询数量（1-100）
+
+# ------------------------------------------------------------
+# 数据质量过滤
+# ------------------------------------------------------------
+inactive_days: 180            # 超过 N 天没有 push 视为“久未更新”
+suspect_daily_stars: 250      # 日均涨星超过该值且 fork/star 极低 -> 判为“疑似刷星”
+suspect_fork_ratio: 0.01      # 疑似刷星的 fork/star 比例上限
+
+# ------------------------------------------------------------
+# 搜索条件（GitHub 搜索语法）
+# 说明：
+#   topic:xxx        按话题标签筛选
+#   stars:>500       星标数下限
+#   created:>日期    创建时间下限（仅用于 new_queries，{since} 会自动替换）
+# ------------------------------------------------------------
+queries:
+  # --- 人工智能 / LLM / Agent ---
+  - "topic:ai-agents stars:>500"
+  - "topic:llm stars:>3000"
+  - "topic:chatgpt stars:>3000"
+  - "topic:stable-diffusion stars:>3000"
+  - "topic:rag stars:>1000"
+  # --- 新模型发布 / 本地部署 / 推理 ---
+  - "topic:llm-inference stars:>200"
+  - "topic:model-serving stars:>200"
+  - "topic:quantization stars:>300"
+  - "topic:gguf stars:>200"
+  - "topic:local-llm stars:>300"
+  # --- 自动化 / 独立开发 / SaaS ---
+  - "topic:automation stars:>1500"
+  - "topic:side-project stars:>500"
+  - "saas boilerplate stars:>500"
+  # --- 电商 / 营销 / 变现 ---
+  - "topic:ecommerce stars:>1500"
+  - "topic:shopify stars:>500"
+  - "topic:marketing stars:>800"
+  # --- 数据 / 采集 ---
+  - "topic:web-scraping stars:>1000"
+  # --- 低代码 / 效率 ---
+  - "topic:nocode stars:>300"
+  # --- 量化 / 交易 ---
+  - "topic:trading-bot stars:>1000"
+  - "topic:quantitative-trading stars:>500"
+  # --- 硬件 / IoT ---
+  - "topic:home-automation stars:>1000"
+  - "topic:esp32 stars:>500"
+  - "topic:stm32 stars:>300"
+  - "topic:raspberry-pi stars:>1500"
+  # --- 开源硬件 / PCB / DIY 创客 ---
+  - "topic:open-hardware stars:>200"
+  - "topic:pcb stars:>500"
+  - "topic:kicad stars:>300"
+  - "topic:diy stars:>1000"
+  - "topic:3d-printing stars:>1000"
+  - "topic:home-lab stars:>50"
+  # --- 逆向工程 / 安全研究（合法开源工具） ---
+  - "topic:reverse-engineering stars:>1000"
+  - "topic:decompiler stars:>300"
+  - "topic:ctf stars:>500"
+
+# 新项目搜索（{since} 会被替换为“今天 - new_within_days 天”的日期）
+new_queries:
+  - "topic:ai created:>{since} stars:>50"
+  - "topic:llm created:>{since} stars:>50"
+  - "topic:agents created:>{since} stars:>30"
+  - "topic:inference created:>{since} stars:>20"
+  - "topic:saas created:>{since} stars:>20"
+  - "topic:automation created:>{since} stars:>20"
+  - "topic:hardware created:>{since} stars:>20"
+  - "topic:open-hardware created:>{since} stars:>10"
+  - "topic:esp32 created:>{since} stars:>10"
+  - "topic:stm32 created:>{since} stars:>10"
+  - "topic:diy created:>{since} stars:>20"
+  - "topic:reverse-engineering created:>{since} stars:>20"
+  - "created:>{since} stars:>200"
+
+# ------------------------------------------------------------
+# 日报 / 推送（可选）
+# type 取值：serverchan | feishu | dingtalk | telegram | webhook | email
+#   serverchan：webhook 填 SendKey（或完整 https://sctapi.ftqq.com/xxx.send）
+#   feishu / dingtalk：webhook 填机器人 webhook 地址
+#   telegram：webhook 填 bot token（或完整 sendMessage URL），chat_id 填会话 ID
+#   webhook：通用 JSON（{"title": "...", "text": "..."}）
+#   email：填 smtp_host / smtp_port / smtp_user / smtp_password / to
+# ------------------------------------------------------------
+notify:
+  type: ""
+  webhook: ""
+  chat_id: ""
+  spike_threshold: 300      # 日均涨星超过该值 → 进“星标异动”提醒
+  digest_window_days: 1     # 日报统计窗口（天）
+  smtp_host: ""
+  smtp_port: 465
+  smtp_user: ""
+  smtp_password: ""
+  to: ""
+
+# ------------------------------------------------------------
+# Web 仪表盘（可选）
+# 设置 auth_user / auth_password 后，所有页面需要 HTTP Basic 登录
+# （/health 健康检查接口始终免认证，供容器探活使用）。
+# 也可用环境变量 GHMH_WEB_USER / GHMH_WEB_PASSWORD 覆盖。
+# ------------------------------------------------------------
+web:
+  auth_user: ""
+  auth_password: ""
+  log_backup_days: 7        # data/logs 下按天轮转的日志保留天数

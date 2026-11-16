@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub 赚钱项目雷达</title>
+<style>
+  :root {
+    --bg: #070b12;
+    --panel: #0f1626;
+    --panel-2: #0b1220;
+    --border: rgba(148, 163, 184, .14);
+    --border-strong: rgba(148, 163, 184, .28);
+    --text: #e6edf7;
+    --muted: #93a2b8;
+    --accent: #38bdf8;
+    --accent-2: #a78bfa;
+    --green: #34d399;
+    --red: #fb7185;
+    --amber: #fbbf24;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(1000px 500px at 12% -10%, rgba(56, 189, 248, .14), transparent 60%),
+      radial-gradient(900px 480px at 92% 0%, rgba(167, 139, 250, .12), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 26px 24px 60px; }
+
+  /* ---------- Header ---------- */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+    font-size: 24px;
+    background: linear-gradient(135deg, rgba(56,189,248,.22), rgba(167,139,250,.22));
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 0 30px rgba(56,189,248,.18);
+  }
+  h1 {
+    margin: 0; font-size: 24px; letter-spacing: .4px; font-weight: 700;
+    background: linear-gradient(90deg, #e6edf7 10%, #7dd3fc 55%, #c4b5fd 95%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .subtitle { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+  .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 13px; border-radius: 999px; font-size: 12.5px; color: var(--muted);
+    background: rgba(148,163,184,.07); border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.ok { background: var(--green); box-shadow: 0 0 8px rgba(52,211,153,.8); }
+  .dot.failed { background: var(--red); box-shadow: 0 0 8px rgba(251,113,133,.8); }
+  .dot.running { background: var(--amber); box-shadow: 0 0 8px rgba(251,191,36,.8); }
+
+  button {
+    font: inherit; color: var(--text); cursor: pointer;
+    background: rgba(148,163,184,.08); border: 1px solid var(--border-strong);
+    padding: 8px 15px; border-radius: 10px; transition: .18s;
+  }
+  button:hover { background: rgba(56,189,248,.16); border-color: rgba(56,189,248,.5); }
+  button.primary {
+    background: linear-gradient(135deg, rgba(56,189,248,.85), rgba(167,139,250,.85));
+    border: none; color: #06111f; font-weight: 600;
+  }
+  button.primary:hover { filter: brightness(1.1); }
+
+  /* ---------- Stats ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 24px; }
+  .card {
+    background: linear-gradient(160deg, rgba(148,163,184,.07), rgba(148,163,184,.02));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px; position: relative; overflow: hidden;
+  }
+  .card::after {
+    content: ""; position: absolute; inset: auto -30% -60% auto; width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(56,189,248,.12), transparent 70%);
+  }
+  .card .label { color: var(--muted); font-size: 12.5px; letter-spacing: .3px; }
+  .card .value { font-size: 26px; font-weight: 700; margin-top: 6px; letter-spacing: .5px; }
+  .card .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .card .value.up { color: var(--green); }
+
+  /* ---------- Tabs / Toolbar ---------- */
+  .tabs { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; }
+  .tab {
+    padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border);
+    background: rgba(148,163,184,.05); color: var(--muted); font-size: 13.5px;
+    cursor: pointer; transition: .18s; user-select: none;
+  }
+  .tab:hover { color: var(--text); border-color: var(--border-strong); }
+  .tab.active {
+    color: #06111f; font-weight: 600; border-color: transparent;
+    background: linear-gradient(135deg, #7dd3fc, #c4b5fd);
+    box-shadow: 0 6px 20px rgba(56,189,248,.22);
+  }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+  .search {
+    flex: 1 1 280px; min-width: 220px; display: flex; align-items: center; gap: 8px;
+    background: rgba(148,163,184,.06); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0 12px;
+  }
+  .search input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text); font: inherit; padding: 10px 0;
+  }
+  .search input::placeholder { color: #64748b; }
+  select {
+    font: inherit; color: var(--text); background: rgba(148,163,184,.06);
+    border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px;
+    outline: none; cursor: pointer;
+  }
+  select option { background: #0f1626; }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+  .refresh-info { color: var(--muted); font-size: 12px; margin-left: auto; white-space: nowrap; }
+
+  /* ---------- Table ---------- */
+  .panel {
+    margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(15,22,38,.92), rgba(11,18,32,.92));
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 860px; }
+  thead th {
+    text-align: left; font-size: 12px; font-weight: 600; color: var(--muted);
+    letter-spacing: .6px; text-transform: uppercase;
+    padding: 13px 14px; border-bottom: 1px solid var(--border);
+    background: rgba(148,163,184,.045); position: sticky; top: 0; z-index: 2;
+    white-space: nowrap;
+  }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid rgba(148,163,184,.07); vertical-align: top; }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover { background: rgba(56,189,248,.055); }
+  tbody tr:last-child td { border-bottom: none; }
+  .rank { color: var(--muted); font-variant-numeric: tabular-nums; width: 44px; font-size: 13px; }
+  .rank .medal { font-size: 15px; }
+  .repo-col { min-width: 320px; max-width: 520px; }
+  .repo-link { font-weight: 600; font-size: 14.5px; color: #bfe3ff; }
+  .repo-link .owner { color: var(--muted); font-weight: 400; }
+  .repo-link:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  .desc {
+    color: var(--muted); font-size: 12.5px; margin-top: 3px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .topics { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .topic {
+    font-size: 11px; color: #7dd3fc; background: rgba(56,189,248,.1);
+    border: 1px solid rgba(56,189,248,.2); border-radius: 999px; padding: 1px 8px;
+  }
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .star-num { font-weight: 600; color: #fde68a; }
+  .up { color: var(--green); font-weight: 600; }
+  .down { color: var(--red); }
+  .muted { color: var(--muted); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px; border-radius: 999px;
+    padding: 2px 9px; font-size: 11.5px; border: 1px solid var(--border-strong);
+    color: var(--muted); white-space: nowrap;
+  }
+  .badge.money { font-weight: 600; }
+  .badge.money.lv1 { color: #94a3b8; border-color: rgba(148,163,184,.35); }
+  .badge.money.lv2 { color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.08); }
+  .badge.money.lv3 { color: #fda4af; border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.1); }
+  .badge.archived { color: var(--amber); border-color: rgba(251,191,36,.4); }
+  .badge.flag-awesome { color: #a5b4fc; border-color: rgba(165,180,252,.45); background: rgba(165,180,252,.08); }
+  .badge.flag-suspect { color: #fbbf24; border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.08); }
+  .badge.flag-inactive { color: #94a3b8; border-color: rgba(148,163,184,.3); }
+  .badge.flag-archived { color: var(--amber); border-color: rgba(251,191,36,.4); }
+  .lang { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .lang i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .spark svg { display: block; }
+  .empty {
+    padding: 60px 20px; text-align: center; color: var(--muted);
+  }
+  .empty .big { font-size: 34px; margin-bottom: 10px; }
+  .empty code {
+    display: inline-block; margin: 10px 4px 0; padding: 8px 12px; border-radius: 8px;
+    background: rgba(148,163,184,.1); border: 1px solid var(--border); color: #7dd3fc;
+    font-family: Consolas, "Courier New", monospace; font-size: 12.5px;
+  }
+  .status-ok { color: var(--green); }
+  .status-failed { color: var(--red); }
+  .status-running { color: var(--amber); }
+
+  .gh-link {
+    color: var(--muted);
+    font-size: 10.5px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0 3px;
+    margin-left: 2px;
+    vertical-align: 1px;
+  }
+  .gh-link:hover { color: var(--sky); text-decoration: none; }
+
+  .cmp-head { width: 44px; text-align: center; color: var(--muted); font-weight: 500; font-size: 12px; }
+  .cmp-cell { text-align: center; }
+  .cmp-btn {
+    width: 24px; height: 24px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 7px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .cmp-btn:hover { color: var(--text); border-color: var(--border-strong); }
+  .cmp-btn.on { color: var(--green); border-color: rgba(52,211,153,.55); background: rgba(52,211,153,.1); }
+
+  .compare-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(10, 16, 30, 0.96);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 8px 12px 8px 18px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.55);
+    z-index: 60;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .compare-bar[hidden] { display: none; }
+  .compare-bar .cnt { color: var(--green); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .compare-bar .go {
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(56,189,248,.9), rgba(167,139,250,.85));
+    color: #071022;
+    font-weight: 650;
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .compare-bar .go:hover { filter: brightness(1.08); text-decoration: none; }
+  .compare-bar .clear {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .compare-bar .clear:hover { color: var(--text); border-color: var(--border-strong); }
+
+  .accel {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    line-height: 1.2;
+    vertical-align: 1px;
+    white-space: nowrap;
+  }
+  .accel.up { color: var(--green); border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.08); }
+  .accel.down { color: var(--rose); border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.08); }
+  .change-new, .change-up { color: var(--green); font-weight: 600; }
+  .change-down { color: var(--rose); font-weight: 600; }
+  .change-same { color: var(--muted); }
+  .change-out { color: #94a3b8; font-weight: 600; }
+  .agg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 18px;
+    padding: 4px 2px;
+  }
+  .agg-panel {
+    background: linear-gradient(180deg, var(--panel), var(--bg-soft));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .agg-row { margin-bottom: 11px; }
+  .agg-head { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
+  .agg-name { font-size: 13px; color: var(--text); }
+  .agg-head .muted { font-size: 12px; display: flex; gap: 8px; align-items: baseline; }
+  .bar-track { height: 8px; background: #1c2740; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, #38bdf8, #a78bfa); border-radius: 4px; }
+
+  footer { margin-top: 34px; color: #64748b; font-size: 12px; line-height: 1.8; }
+  footer a { color: #7dd3fc; }
+
+  #toast {
+    position: fixed; right: 22px; bottom: 22px; z-index: 50;
+    background: #1e293b; border: 1px solid var(--border-strong); color: var(--text);
+    padding: 11px 18px; border-radius: 10px; font-size: 13px;
+    opacity: 0; transform: translateY(12px); transition: .25s; pointer-events: none;
+    max-width: 380px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.err { border-color: rgba(251,113,133,.55); }
+
+  .loading { opacity: .45; transition: opacity .2s; }
+
+  @media (max-width: 900px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .wrap { padding: 18px 14px 50px; }
+    h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div id="jsErrorBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#7f1d1d;color:#fff;padding:10px 16px;font-size:13px;white-space:pre-wrap;font-family:monospace"></div>
+<script>
+window.addEventListener("error", function (e) {
+  var el = document.getElementById("jsErrorBanner");
+  if (!el) return;
+  el.style.display = "block";
+  el.textContent = "页面脚本错误：" + (e.message || e.error || e) +
+    (e.filename ? "  @ " + e.filename.split("/").pop() + ":" + (e.lineno || "?") + ":" + (e.colno || "?") : "");
+});
+window.addEventListener("unhandledrejection", function (e) {
+  var el = document.getElementById("jsErrorBanner");
+  if (!el) return;
+  el.style.display = "block";
+  el.textContent = "未处理的 Promise 错误：" + (e.reason && (e.reason.stack || e.reason.message) || e.reason);
+});
+</script>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">💰</div>
+      <div>
+        <h1>GitHub 赚钱项目雷达</h1>
+        <p class="subtitle">AI · 软件 · 硬件 —— 自动追踪最值得关注、最能变现的开源项目</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="pill" id="lastRunPill"><span class="dot" id="lastRunDot"></span><span id="lastRunText">加载中…</span></span>
+      <button class="primary" id="refreshBtn">立即刷新</button>
+    </div>
+  </header>
+
+  <section class="stats">
+    <div class="card">
+      <div class="label">收录仓库</div>
+      <div class="value" id="statRepos">—</div>
+      <div class="sub" id="statReposSub">追踪中的 GitHub 项目</div>
+    </div>
+    <div class="card">
+      <div class="label">追踪 Star 总量</div>
+      <div class="value" id="statStars">—</div>
+      <div class="sub" id="statStarsSub">全部项目星标之和</div>
+    </div>
+    <div class="card">
+      <div class="label" id="statGrowthLabel">窗口内新增 Star</div>
+      <div class="value up" id="statGrowth">—</div>
+      <div class="sub" id="statGrowthSub">按当前增长窗口统计</div>
+    </div>
+    <div class="card">
+      <div class="label">上次采集</div>
+      <div class="value" id="statSnapshots" style="font-size:20px">—</div>
+      <div class="sub" id="statRunsSub">快照记录 — 条</div>
+    </div>
+  </section>
+
+  <nav class="tabs" id="tabs">
+    <div class="tab active" data-board="growth">🚀 增长最快</div>
+    <div class="tab" data-board="stars">⭐ 最多 Star</div>
+    <div class="tab" data-board="new">🆕 最新高潜</div>
+    <div class="tab" data-board="money">💎 变现潜力</div>
+    <div class="tab" data-board="all">📦 全部项目</div>
+    <div class="tab" data-board="runs">🕘 采集历史</div>
+    <div class="tab" data-board="changes">📈 每日变动</div>
+    <div class="tab" data-board="breakdown">📊 语言 / 话题</div>
+  </nav>
+
+  <div class="toolbar">
+    <div class="search">
+      <span>🔍</span>
+      <input id="searchInput" type="text" placeholder="搜索项目名 / 描述 / 话题 / 语言，例如 agent、saas、esp32" autocomplete="off">
+    </div>
+    <select id="windowSelect" title="增长统计窗口">
+      <option value="1">近 1 天</option>
+      <option value="7" selected>近 7 天</option>
+      <option value="30">近 30 天</option>
+      <option value="90">近 90 天</option>
+    </select>
+    <select id="modeSelect" title="增长排序方式">
+      <option value="total" selected>按总增长</option>
+      <option value="perday">按日均增速</option>
+      <option value="pct">按百分比涨幅</option>
+    </select>
+    <select id="sortSelect" title="排序方式" style="display:none">
+      <option value="stars" selected>按 Star</option>
+      <option value="money">按变现分</option>
+      <option value="growth">按增长</option>
+      <option value="updated">按最近更新</option>
+      <option value="created">按创建时间</option>
+    </select>
+    <button id="exportBtn">导出 CSV</button>
+    <span class="refresh-info" id="refreshInfo">60 秒后自动刷新</span>
+  </div>
+  <div class="hint" id="boardHint"></div>
+
+  <div class="panel">
+    <div class="table-scroll" id="tableContainer">
+      <div class="empty"><div class="big">⏳</div>正在加载数据…</div>
+    </div>
+  </div>
+
+  <footer>
+    <div>数据来源：GitHub REST API · 本地 SQLite 存储 · 每 {{window_days}} 天为一个增长统计窗口 · 每 60 秒自动刷新</div>
+    <div>质量过滤：每轮采集会用 GraphQL 批量刷新存量仓库星标；增长榜 / 新项目榜自动排除精选列表与归档项目，疑似刷星、久未更新会标注提示。</div>
+    <div>“变现分”由名称 / 描述 / 话题标签的关键词启发式估算，仅供参考，不构成任何投资建议。</div>
+    <div>命令行：<code style="color:#7dd3fc">python run.py collect</code> 采集 · <code style="color:#7dd3fc">python run.py watch</code> 定时更新 · <code style="color:#7dd3fc">python run.py digest</code> 日报 · <code style="color:#7dd3fc">python run.py report</code> 导出报告 · v{{ version }}</div>
+  </footer>
+</div>
+
+<div class="compare-bar" id="compareBar" hidden>
+  <span>已选 <span class="cnt" id="cmpCount">0</span> 个项目</span>
+  <a class="go" id="cmpGo" href="/compare">开始对比</a>
+  <button class="clear" id="cmpClear">清空</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const NEW_WITHIN_DAYS = {{ new_within_days }};
+const DEFAULT_WINDOW = {{ window_days }};
+
+const LANGS = {
+  "Python": "#3572A5", "TypeScript": "#3178c6", "JavaScript": "#f1e05a",
+  "Go": "#00ADD8", "Rust": "#dea584", "Java": "#b07219", "C++": "#f34b7d",
+  "C": "#555555", "C#": "#178600", "PHP": "#4F5D95", "Ruby": "#701516",
+  "Shell": "#89e051", "HTML": "#e34c26", "CSS": "#563d7c", "Vue": "#41b883",
+  "Jupyter Notebook": "#DA5B0B", "Swift": "#F05138", "Kotlin": "#A97BFF",
+  "Dart": "#00B4AB", "Lua": "#000080", "Scala": "#c22d40", "Zig": "#ec915c",
+};
+
+const COMPARE_KEY = "ghmh_compare";
+
+function loadCompare() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(COMPARE_KEY) || "[]");
+    return Array.isArray(ids) ? ids.filter((x) => Number.isInteger(x)) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+const state = {
+  board: "growth",
+  q: "",
+  window: DEFAULT_WINDOW,
+  mode: "total",
+  sort: "stars",
+  limit: 50,
+  countdown: 60,
+  rows: [],
+  summary: null,
+  compare: new Set(loadCompare()),
+};
+
+function saveCompare() {
+  localStorage.setItem(COMPARE_KEY, JSON.stringify([...state.compare]));
+}
+
+function updateCompareBar() {
+  const bar = $("compareBar");
+  const count = state.compare.size;
+  if (!count) {
+    bar.hidden = true;
+    return;
+  }
+  bar.hidden = false;
+  $("cmpCount").textContent = String(count);
+  $("cmpGo").href = "/compare?ids=" + [...state.compare].join(",");
+}
+
+const $ = (id) => document.getElementById(id);
+
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function fmt(n) {
+  if (n == null || isNaN(n)) return "—";
+  return Number(n).toLocaleString("en-US");
+}
+function fmt1(n) {
+  if (n == null || isNaN(n)) return "—";
+  const v = Number(n);
+  return (v >= 0 ? "+" : "") + (Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(1));
+}
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso.slice(0, 10);
+  const p = (x) => String(x).padStart(2, "0");
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function relDays(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const days = (Date.now() - d.getTime()) / 86400000;
+  if (days < 1) return "今天";
+  return `${Math.floor(days)} 天前`;
+}
+
+let toastTimer = null;
+function toast(msg, isErr = false) {
+  const el = $("toast");
+  el.textContent = msg;
+  el.className = "show" + (isErr ? " err" : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = ""; }, 3200);
+}
+
+async function api(path, { timeoutMs = 15000 } = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const resp = await fetch(path, {
+      headers: { "Accept": "application/json" },
+      signal: controller.signal,
+    });
+    if (!resp.ok) throw new Error(`${resp.status} ${await resp.text()}`);
+    return resp.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* ---------------- 表格列定义 ---------------- */
+
+function moneyBadge(score) {
+  const s = Number(score || 0);
+  const lv = s >= 40 ? "lv3" : s >= 20 ? "lv2" : "lv1";
+  return `<span class="badge money ${lv}" title="变现潜力启发式评分（0-100）">变现 ${s}</span>`;
+}
+
+function langChip(lang) {
+  if (!lang) return '<span class="muted">—</span>';
+  const color = LANGS[lang] || "#8b949e";
+  return `<span class="lang"><i style="background:${color}"></i>${esc(lang)}</span>`;
+}
+
+function repoCell(r) {
+  const owner = r.full_name.includes("/") ? r.full_name.split("/")[0] : r.owner;
+  const name = r.name || r.full_name.split("/").pop();
+  const topics = (r.topics || []).slice(0, 4).map(t => `<span class="topic">#${esc(t)}</span>`).join("");
+  const flagged = flagBadges(r.flags);
+  return `
+    <div>
+      <a class="repo-link" href="/repo/${r.id}" title="查看项目详情">
+        <span class="owner">${esc(owner)}/</span>${esc(name)}
+      </a><a class="gh-link" href="${esc(r.url)}" target="_blank" rel="noopener" title="在 GitHub 打开">↗</a> ${flagged}
+      <div class="desc">${esc(r.description || "暂无描述")}</div>
+      ${topics ? `<div class="topics">${topics}</div>` : ""}
+    </div>`;
+}
+
+const FLAG_LABELS = {
+  awesome: "精选列表",
+  suspect: "疑似刷星",
+  inactive: "久未更新",
+  archived: "已归档",
+};
+
+function flagBadges(flags) {
+  return (flags || [])
+    .filter(f => FLAG_LABELS[f])
+    .map(f => `<span class="badge flag-${f}" title="${FLAG_LABELS[f]}">${FLAG_LABELS[f]}</span>`)
+    .join(" ");
+}
+
+function rankCell(i) {
+  const medal = ["🥇", "🥈", "🥉"][i];
+  return medal ? `<span class="medal">${medal}</span>` : String(i + 1);
+}
+
+function sparkline(values) {
+  if (!values || values.length < 2) return '<span class="muted">—</span>';
+  const w = 120, h = 30, pad = 3;
+  const min = Math.min(...values), max = Math.max(...values);
+  const span = max - min || 1;
+  const pts = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - min) / span) * (h - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const up = values[values.length - 1] >= values[0];
+  const color = up ? "#34d399" : "#fb7185";
+  const last = pts[pts.length - 1].split(",");
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="1.6"
+      stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="2.4" fill="${color}"/>
+  </svg>`;
+}
+
+function growthCell(v) {
+  if (v == null) return '<span class="muted">—</span>';
+  const cls = v > 0 ? "up" : v < 0 ? "down" : "muted";
+  return `<span class="${cls}">${v > 0 ? "+" : ""}${fmt(v)}</span>`;
+}
+
+const BOARDS = {
+  growth: {
+    hint: () => {
+      const modeLabel = state.mode === "perday" ? "按日均增速" : state.mode === "pct" ? "按百分比涨幅" : "按总增长";
+      return `统计窗口内 Star 净增长排行（当前 ${state.window} 天，${modeLabel}）。已自动排除精选列表与归档项目，疑似刷星会标注；背景徽章表示近期日均增速变化（加速度）。`;
+    },
+    columns: [
+      { label: "#", cls: "rank", render: (r, i) => rankCell(i) },
+      { label: "项目", cls: "repo-col", render: repoCell },
+      { label: "Star", cls: "num", render: (r) => `<span class="star-num">${fmt(r.stars)}</span>` },
+      { label: "增长", cls: "num", render: (r) => growthCell(r.growth) },
+      { label: "涨幅", cls: "num", render: (r) => r.growth_pct == null ? "—" : `<span class="${r.growth_pct > 0 ? "up" : "down"}">${fmt1(r.growth_pct)}%</span>` },
+      { label: "日均", cls: "num", render: (r) => {
+          const base = r.per_day == null ? "—" : `<span class="up">${fmt1(r.per_day)}/天</span>`;
+          const accel = r.accel == null ? "" : ` <span class="accel${r.accel > 0 ? " up" : r.accel < 0 ? " down" : ""}" title="近期日均 − 前期日均">${r.accel > 0 ? "↑" : r.accel < 0 ? "↓" : "→"}${Math.abs(fmt1(r.accel))}</span>`;
+          return base + accel;
+        }},
+      { label: "趋势", cls: "spark", render: (r) => sparkline(r.spark) },
+      { label: "变现", cls: "num", render: (r) => moneyBadge(r.money_score) },
+      { label: "语言", cls: "lang", render: (r) => langChip(r.language) },
+    ],
+  },
+  stars: {
+    hint: () => "按当前 Star 总数排行。",
+    columns: [
+      { label: "#", cls: "rank", render: (r, i) => rankCell(i) },
+      { label: "项目", cls: "repo-col", render: repoCell },
+      { label: "Star", cls: "num", render: (r) => `<span class="star-num">${fmt(r.stars)}</span>` },
+      { label: "Fork", cls: "num", render: (r) => fmt(r.forks) },
+      { label: "变现", cls: "num", render: (r) => moneyBadge(r.money_score) },
+      { label: "语言", cls: "lang", render: (r) => langChip(r.language) },
+      { label: "创建", cls: "num muted", render: (r) => esc(r.created_at || "—") },
+    ],
+  },
+  new: {
+    hint: () => `最近 ${NEW_WITHIN_DAYS} 天内创建、按“平均每天获得 Star”排序的高潜项目。`,
+    columns: [
+      { label: "#", cls: "rank", render: (r, i) => rankCell(i) },
+      { label: "项目", cls: "repo-col", render: repoCell },
+      { label: "Star", cls: "num", render: (r) => `<span class="star-num">${fmt(r.stars)}</span>` },
+      { label: "星/天", cls: "num", render: (r) => `<span class="up">${fmt1(r.per_day)}/天</span>` },
+      { label: "年龄", cls: "num muted", render: (r) => r.age_days == null ? "—" : `${Math.round(r.age_days)} 天` },
+      { label: "变现", cls: "num", render: (r) => moneyBadge(r.money_score) },
+      { label: "语言", cls: "lang", render: (r) => langChip(r.language) },
+      { label: "趋势", cls: "spark", render: (r) => sparkline(r.spark) },
+    ],
+  },
+  money: {
+    hint: () => "按“变现潜力分”排序（名称 / 描述 / 话题命中商业模式关键词），分数仅供参考。",
+    columns: [
+      { label: "#", cls: "rank", render: (r, i) => rankCell(i) },
+      { label: "项目", cls: "repo-col", render: repoCell },
+      { label: "变现分", cls: "num", render: (r) => moneyBadge(r.money_score) },
+      { label: "Star", cls: "num", render: (r) => `<span class="star-num">${fmt(r.stars)}</span>` },
+      { label: "增长", cls: "num", render: (r) => growthCell(r.growth) },
+      { label: "语言", cls: "lang", render: (r) => langChip(r.language) },
+      { label: "趋势", cls: "spark", render: (r) => sparkline(r.spark) },
+    ],
+  },
+  all: {
+    hint: () => "全部已收录项目，可用右上角下拉框切换排序，或输入关键词过滤。",
+    columns: [
+      { label: "#", cls: "rank", render: (r, i) => rankCell(i) },
+      { label: "项目", cls: "repo-col", render: repoCell },
+      { label: "Star", cls: "num", render: (r) => `<span class="star-num">${fmt(r.stars)}</span>` },
+      { label: "增长", cls: "num", render: (r) => growthCell(r.growth) },
+      { label: "变现", cls: "num", render: (r) => moneyBadge(r.money_score) },
+      { label: "语言", cls: "lang", render: (r) => langChip(r.language) },
+      { label: "更新", cls: "num muted", render: (r) => esc((r.updated_at || "").slice(0, 10)) },
+    ],
+  },
+};
+
+/* ---------------- 渲染 ---------------- */
+
+function emptyMessage() {
+  if (state.q) return "没有匹配的项目，换个关键词试试。";
+  if (state.board === "growth" && state.summary && state.summary.repos > 0) {
+    return "增长榜需要至少两次不同时间的采集才能计算，过一段时间再采集一次即可。";
+  }
+  if (state.board === "new") {
+    return `最近 ${NEW_WITHIN_DAYS} 天内还没有符合条件的新项目，可以在 config.yaml 中调大 new_within_days 后重新采集。`;
+  }
+  return "还没有数据。先运行一次采集，就能看到榜单了：";
+}
+
+function compareBtn(id) {
+  const on = state.compare.has(id);
+  return `<button class="cmp-btn${on ? " on" : ""}" data-cmp="${id}" title="${on ? "取消对比" : "加入对比"}">${on ? "✓" : "＋"}</button>`;
+}
+
+function renderTable(board) {
+  const container = $("tableContainer");
+  if (board === "changes") { renderChanges(container); return; }
+  if (board === "breakdown") { renderBreakdown(container); return; }
+  if (board === "runs") { renderRuns(container); return; }
+  const def = BOARDS[board];
+  const rows = state.rows;
+
+  if (!rows.length) {
+    const msg = emptyMessage();
+    const showHints = !state.q && !(state.summary && state.summary.repos > 0);
+    container.innerHTML = `
+      <div class="empty">
+        <div class="big">🛰️</div>
+        <div>${msg}</div>
+        ${showHints ? "<code>python run.py collect</code><code>python run.py demo</code>" : ""}
+      </div>`;
+    return;
+  }
+
+  const head = def.columns.map(c => `<th class="${c.cls || ""}">${c.label}</th>`).join("")
+    + '<th class="cmp-head">对比</th>';
+  const body = rows.map((r, i) =>
+    `<tr>${def.columns.map(c => `<td class="${c.cls || ""}">${c.render(r, i)}</td>`).join("")}<td class="cmp-cell">${compareBtn(r.id)}</td></tr>`
+  ).join("");
+
+  container.innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+async function renderRuns(container) {
+  try {
+    const data = await api("/api/runs?limit=30");
+    const runs = data.runs || [];
+    if (!runs.length) {
+      container.innerHTML = '<div class="empty"><div class="big">🕘</div>还没有采集记录。</div>';
+      return;
+    }
+    const rows = runs.map((r) => {
+      const start = r.started_at ? new Date(r.started_at) : null;
+      const end = r.finished_at ? new Date(r.finished_at) : null;
+      let dur = "—";
+      if (start && end) dur = `${Math.max(1, Math.round((end - start) / 1000))} 秒`;
+      else if (r.status === "running") dur = "进行中";
+      const statusCls = r.status === "ok" ? "status-ok" : r.status === "failed" ? "status-failed" : "status-running";
+      const statusText = r.status === "ok" ? "成功" : r.status === "failed" ? "失败" : "进行中";
+      return `<tr>
+        <td class="muted">${esc(fmtDate(r.started_at))}</td>
+        <td class="muted">${dur}</td>
+        <td class="${statusCls}">${statusText}</td>
+        <td>${r.queries_ok} / ${r.queries_total}</td>
+        <td class="num">${fmt(r.repos_seen)}</td>
+        <td class="num">${r.repos_new > 0 ? `<span class="up">+${fmt(r.repos_new)}</span>` : "0"}</td>
+        <td class="num">${fmt(r.repos_refreshed)}</td>
+        <td class="muted" style="max-width:340px">${esc(r.message || "")}</td>
+      </tr>`;
+    }).join("");
+    container.innerHTML = `<table>
+      <thead><tr><th>开始时间</th><th>用时</th><th>状态</th><th>搜索条件</th><th class="num">收录</th><th class="num">新增</th><th class="num">刷新</th><th>备注</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  } catch (err) {
+    container.innerHTML = `<div class="empty">加载采集历史失败：${esc(err.message)}</div>`;
+  }
+}
+
+async function renderChanges(container) {
+  container.innerHTML = '<div class="empty"><div class="big">⏳</div>正在加载榜单变动…</div>';
+  try {
+    const data = await api("/api/changes?board=growth&limit=40");
+    const items = data.items || [];
+    if (!data.day || !data.prev_day) {
+      container.innerHTML = `<div class="empty"><div class="big">📈</div>
+        需要至少两天的榜单记录才能计算新晋 / 掉榜。<br>
+        当前${data.day ? "只有 1 天" : "还没有"}记录，明天再采集一次即可看到变化。</div>`;
+      return;
+    }
+    if (!items.length) {
+      container.innerHTML = `<div class="empty"><div class="big">📈</div>${esc(data.prev_day)} → ${esc(data.day)} 暂无排名变动。</div>`;
+      return;
+    }
+    const label = { new: "🆕 新晋", up: "⬆️ 上升", down: "⬇️ 下降", same: "→ 持平", out: "📉 掉榜" };
+    const rankText = (r) => {
+      if (r.change === "new") return `新入榜 #${r.rank_now}`;
+      if (r.change === "out") return `曾 #${r.rank_prev}`;
+      const delta = r.delta || 0;
+      return `#${r.rank_prev} → #${r.rank_now}（${delta > 0 ? "+" : ""}${delta}）`;
+    };
+    const rows = items.map((r) => `<tr>
+      <td class="change-${r.change}">${label[r.change] || esc(r.change)}</td>
+      <td class="muted">${rankText(r)}</td>
+      <td class="repo-col">
+        <a class="repo-link" href="/repo/${r.id}"><span class="owner">${esc(r.owner)}/</span>${esc(r.name)}</a>
+        <div class="desc">${esc(r.description || "暂无描述")}</div>
+      </td>
+      <td class="num"><span class="star-num">${fmt(r.stars)}</span></td>
+      <td class="num">${r.growth != null ? `<span class="up">+${fmt(r.growth)}</span>` : "—"}</td>
+      <td class="num">${r.growth_pct != null ? `<span class="${r.growth_pct > 0 ? "up" : "down"}">${fmt1(r.growth_pct)}%</span>` : "—"}</td>
+    </tr>`).join("");
+    container.innerHTML = `<div class="hint" style="margin:0 0 10px;color:var(--muted);font-size:12px">
+      对比 ${esc(data.prev_day)} 与 ${esc(data.day)} 的“增长最快”榜（共 ${items.length} 条变动）
+    </div>
+    <table>
+      <thead><tr><th>状态</th><th>排名变化</th><th>项目</th><th class="num">Star</th><th class="num">窗口增长</th><th class="num">涨幅</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  } catch (err) {
+    container.innerHTML = `<div class="empty">加载榜单变动失败：${esc(err.message)}</div>`;
+  }
+}
+
+async function renderBreakdown(container) {
+  container.innerHTML = '<div class="empty"><div class="big">⏳</div>正在聚合语言 / 话题…</div>';
+  try {
+    const [langs, topics] = await Promise.all([
+      api(`/api/breakdown?dim=language&limit=12&window=${state.window}`),
+      api(`/api/breakdown?dim=topic&limit=16&window=${state.window}`),
+    ]);
+    const panel = (title, rows, nameKey, icon, note) => {
+      const max = Math.max(1, ...rows.map((r) => r.stars));
+      const items = rows.map((r) => `<div class="agg-row">
+          <div class="agg-head">
+            <span class="agg-name">${icon} ${esc(r[nameKey])}</span>
+            <span class="muted">${r.repos} 个项目 · ★${fmt(r.stars)} · <span class="${r.growth > 0 ? "up" : ""}">+${fmt(r.growth)}</span>（${fmt1(r.growth_pct)}%）</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2, Math.round((r.stars / max) * 100))}%"></div></div>
+        </div>`).join("");
+      return `<div class="agg-panel">
+        <div class="card-head"><h2>${title}</h2><span class="muted" style="font-size:12px;margin-left:auto">${note}</span></div>
+        ${items || '<div class="empty">暂无数据</div>'}
+      </div>`;
+    };
+    container.innerHTML = `<div class="agg-grid">
+      ${panel("编程语言", langs.rows || [], "language", "🧩", "按总 Star 排序")}
+      ${panel("话题标签", topics.rows || [], "topic", "#", "按仓库数排序")}
+    </div>`;
+  } catch (err) {
+    container.innerHTML = `<div class="empty">加载聚合分布失败：${esc(err.message)}</div>`;
+  }
+}
+
+async function loadSummary() {
+  try {
+    const s = await api(`/api/summary?window=${state.window}`);
+    state.summary = s;
+    $("statRepos").textContent = fmt(s.repos);
+    $("statReposSub").textContent = s.new_repos_24h > 0 ? `24 小时内新收录 ${fmt(s.new_repos_24h)} 个` : "追踪中的 GitHub 项目";
+    $("statStars").textContent = fmt(s.total_stars);
+    $("statGrowth").textContent = "+" + fmt(s.window_growth);
+    $("statGrowthLabel").textContent = `近 ${s.window_days} 天新增 Star`;
+    $("statGrowthSub").textContent = "所有追踪项目的星标净增长";
+    $("statSnapshots").textContent = s.last_run_at ? fmtDate(s.last_run_at) : "从未采集";
+    $("statRunsSub").textContent = `快照记录 ${fmt(s.snapshots)} 条 · 采集 ${fmt(s.runs)} 次`;
+
+    const dot = $("lastRunDot");
+    dot.className = "dot " + (s.last_run_status === "ok" ? "ok" : s.last_run_status === "failed" ? "failed" : s.last_run_status === "running" ? "running" : "");
+    $("lastRunText").textContent = s.last_run_at
+      ? `上次采集 ${fmtDate(s.last_run_at)}（${s.last_run_status === "ok" ? "成功" : s.last_run_status === "failed" ? "失败" : "进行中"}）`
+      : "尚未采集过数据";
+
+    if (!s.has_data && state.board !== "runs") {
+      // 统计数据为 0 时仍然让榜单区展示引导
+    }
+  } catch (err) {
+    toast("加载统计数据失败：" + err.message, true);
+  }
+}
+
+async function loadBoard() {
+  if (state.board === "runs" || state.board === "changes" || state.board === "breakdown") {
+    renderTable(state.board);
+    return;
+  }
+  const container = $("tableContainer");
+  container.classList.add("loading");
+  try {
+    const params = new URLSearchParams({
+      board: state.board,
+      limit: String(state.limit),
+      window: String(state.window),
+      mode: state.mode,
+      sort: state.sort,
+    });
+    if (state.q.trim()) params.set("q", state.q.trim());
+    const data = await api("/api/leaderboard?" + params.toString());
+    state.rows = data.rows || [];
+    renderTable(state.board);
+    $("boardHint").textContent = BOARDS[state.board].hint();
+  } catch (err) {
+    const isTimeout = err && err.name === "AbortError";
+    const msg = isTimeout
+      ? "加载超时（服务未响应）。请确认已运行 <code>python run.py web</code>，且端口未被占用。"
+      : `加载失败：${esc(err && err.message ? err.message : String(err))}`;
+    container.innerHTML = `<div class="empty">${msg}<br><br>
+      <a href="#" onclick="event.preventDefault();loadBoard();">点击重试</a>
+      · 或按 F5 刷新页面</div>`;
+  } finally {
+    container.classList.remove("loading");
+  }
+}
+
+function refreshAll() {
+  state.countdown = 60;
+  updateRefreshInfo();
+  loadSummary();
+  loadBoard();
+}
+
+function updateRefreshInfo() {
+  $("refreshInfo").textContent = `${state.countdown} 秒后自动刷新`;
+}
+
+/* ---------------- 事件绑定 ---------------- */
+
+$("tabs").addEventListener("click", (e) => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t === tab));
+  state.board = tab.dataset.board;
+  const isRuns = state.board === "runs";
+  const isBreakdown = state.board === "breakdown";
+  const isChanges = state.board === "changes";
+  $("windowSelect").style.display = (state.board === "growth" || state.board === "all" || state.board === "money" || isBreakdown) ? "" : "none";
+  $("modeSelect").style.display = state.board === "growth" ? "" : "none";
+  $("sortSelect").style.display = state.board === "all" ? "" : "none";
+  $("searchInput").parentElement.style.display = isRuns || isChanges || isBreakdown ? "none" : "";
+  $("exportBtn").style.display = isRuns || isChanges || isBreakdown ? "none" : "";
+  const customHints = {
+    runs: "每次采集的运行记录，包含抓取条件数与新增项目数。",
+    changes: "与上一次榜单快照对比：新晋 / 上升 / 下降 / 掉榜。基于“增长最快”榜，需要至少两天的采集记录（同一天多次采集会覆盖）。",
+    breakdown: "按编程语言 / 话题聚合：仓库数、总 Star 与窗口增长，用于发现哪些方向更热。",
+  };
+  $("boardHint").textContent = customHints[state.board] || BOARDS[state.board].hint();
+  loadBoard();
+});
+
+let searchTimer = null;
+$("searchInput").addEventListener("input", (e) => {
+  clearTimeout(searchTimer);
+  const value = e.target.value;
+  searchTimer = setTimeout(() => {
+    state.q = value;
+    loadBoard();
+  }, 320);
+});
+
+$("windowSelect").addEventListener("change", (e) => {
+  state.window = Number(e.target.value);
+  loadSummary();
+  loadBoard();
+});
+$("modeSelect").addEventListener("change", (e) => { state.mode = e.target.value; loadBoard(); });
+$("sortSelect").addEventListener("change", (e) => { state.sort = e.target.value; loadBoard(); });
+$("refreshBtn").addEventListener("click", () => { refreshAll(); toast("已刷新"); });
+
+$("exportBtn").addEventListener("click", () => {
+  if (!state.rows.length) { toast("当前没有可导出的数据", true); return; }
+  const header = ["排名", "项目", "链接", "Star", "窗口增长", "日均", "变现分", "语言", "创建日期", "描述"];
+  const lines = [header.join(",")];
+  state.rows.forEach((r, i) => {
+    const cells = [
+      i + 1, r.full_name, r.url, r.stars,
+      r.growth == null ? "" : r.growth,
+      r.per_day == null ? "" : r.per_day,
+      r.money_score, r.language, r.created_at,
+      (r.description || "").replace(/\s+/g, " "),
+    ].map(v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`);
+    lines.push(cells.join(","));
+  });
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `github_money_${state.board}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("CSV 已导出");
+});
+
+setInterval(() => {
+  state.countdown -= 1;
+  if (state.countdown <= 0) { refreshAll(); return; }
+  updateRefreshInfo();
+}, 1000);
+
+$("tableContainer").addEventListener("click", (event) => {
+  const btn = event.target.closest(".cmp-btn");
+  if (!btn) return;
+  const id = Number(btn.dataset.cmp);
+  if (state.compare.has(id)) {
+    state.compare.delete(id);
+  } else {
+    if (state.compare.size >= 6) { toast("最多同时对比 6 个项目", true); return; }
+    state.compare.add(id);
+  }
+  saveCompare();
+  updateCompareBar();
+  const on = state.compare.has(id);
+  btn.classList.toggle("on", on);
+  btn.textContent = on ? "✓" : "＋";
+  btn.title = on ? "取消对比" : "加入对比";
+});
+
+$("cmpClear").addEventListener("click", () => {
+  state.compare.clear();
+  saveCompare();
+  updateCompareBar();
+  document.querySelectorAll(".cmp-btn").forEach((b) => {
+    b.classList.remove("on");
+    b.textContent = "＋";
+    b.title = "加入对比";
+  });
+  toast("已清空对比列表");
+});
+
+/* ---------------- 启动 ---------------- */
+updateCompareBar();
+$("windowSelect").value = String(state.window);
+refreshAll();
+</script>
+</body>
+</html>
